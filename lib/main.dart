@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/Cubits/theme_cubit/theme_cubit.dart';
 import 'Cubits/task_cubit/task_cubit.dart';
-import 'Cubits/task_cubit/task_cubit.dart';
 import 'UI/home.dart';
 
 void main() => runApp(MultiBlocProvider(
@@ -15,8 +14,6 @@ void main() => runApp(MultiBlocProvider(
 
 class ToDoApp extends StatelessWidget {
   const ToDoApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

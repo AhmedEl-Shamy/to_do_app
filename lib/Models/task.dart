@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
 
-class Task{
+class Task {
   String name;
-  String? description;
-  Color? color;
+  String note;
+  Color color;
+  String repeat;
+  String date;
+  String startTime;
+  String endtTime;
 
-  Task({required this.name, this.description = '', this.color = Colors.blue});
+  Task({
+    required this.name,
+    this.note = '',
+    this.color = Colors.redAccent,
+    this.date = 'none',
+    this.repeat = 'none',
+    this.startTime = 'none',
+    this.endtTime = 'none',
+  });
 }
