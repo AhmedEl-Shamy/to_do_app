@@ -4,9 +4,9 @@ part 'theme_state.dart';
 
 class ThemeCubit extends Cubit<ThemeState> {
   ThemeCubit() : super(ThemeChanged());
-  String currentTheme = 'system';
-
-  void changeTheme(String theme){
+  bool isDark = false;
+  void changeTheme(){
+    isDark = !isDark;
     emit(ThemeChanged());
   }
 }

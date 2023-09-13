@@ -4,3 +4,4 @@ sealed class TaskState {}
 
 final class TaskInitial extends TaskState {}
 final class TaskUpdated extends TaskState {}
+final class TasksOptionChanged extends TaskState {}

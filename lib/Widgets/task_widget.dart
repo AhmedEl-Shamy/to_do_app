@@ -14,7 +14,9 @@ class TaskWidget extends StatelessWidget {
       alignment: Alignment.center,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-          color: task.color, borderRadius: BorderRadius.circular(20)),
+        color: task.color,
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Column(
         children: [
           Text(
@@ -23,7 +25,9 @@ class TaskWidget extends StatelessWidget {
           ),
           if (task.note != '') SizedBox(height: SizeConfig.heightBlock),
           if (task.note != '')
-            Text(task.note, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+            Text(task.note,
+                style:
+                    const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
         ],
       ),
     );
