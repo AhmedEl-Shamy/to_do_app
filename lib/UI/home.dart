@@ -42,10 +42,13 @@ class HomePage extends StatelessWidget {
               centerTitle: true,
             ),
             floatingActionButton: FloatingActionButton(
-              onPressed: () => showDialog(
+              onPressed: () {
+                BlocProvider.of<TaskCubit>(context).restoreDefaults();
+                showDialog(
                 context: context,
-                builder: (context) => AddTaskWidget(),
-              ),
+                builder: (context) =>  AddTaskWidget(),
+              );
+              },
               child: const Icon(Icons.add),
             ),
             body: Padding(

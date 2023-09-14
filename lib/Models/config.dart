@@ -46,3 +46,4 @@ class ThemeColors {
   static final ColorScheme darkScheme = ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark);
 
 }
+
