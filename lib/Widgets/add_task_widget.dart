@@ -6,7 +6,6 @@ import 'package:to_do/Models/config.dart';
 
 class AddTaskWidget extends StatelessWidget {
   AddTaskWidget({super.key});
-  DateTime date = DateTime.now();
   final List<Color> colors = [
     Colors.red,
     Colors.blue,
@@ -21,13 +20,14 @@ class AddTaskWidget extends StatelessWidget {
       insetPadding: EdgeInsets.symmetric(
           vertical: SizeConfig.heightBlock * 5,
           horizontal: SizeConfig.widthBlock * 2),
-      title: const Text('Add New Task'),
+      title: const Text('Add New Task', style: TextStyle(fontWeight: FontWeight.bold),),
       content: SizedBox(
-        width: SizeConfig.widthBlock * 98,
+        width: SizeConfig.widthBlock * 95,
         height: SizeConfig.heightBlock * 90,
         child: SingleChildScrollView(
           child: Column(
             children: [
+              SizedBox(height: SizeConfig.heightBlock * 2),
               _addTaskTextField(
                 label: 'Name',
                 controller: BlocProvider.of<TaskCubit>(context).nameC,
@@ -56,7 +56,8 @@ class AddTaskWidget extends StatelessWidget {
               SizedBox(height: SizeConfig.heightBlock * 2),
               BlocBuilder<TaskCubit, TaskState>(
                 buildWhen: (previous, current) =>
-                    current is AddTaskEndDateChanged,
+                    current is AddTaskEndDateChanged ||
+                    current is AddTaskDateChanged,
                 builder: (context, state) {
                   return _pickerButton(
                     type: 'End Date',
@@ -290,7 +291,8 @@ class AddTaskWidget extends StatelessWidget {
                           ),
                         )
                         .toList(),
-                  )
+                  ),
+                  SizedBox(height: SizeConfig.heightBlock * 2),
                 ],
               ),
             ],
@@ -303,7 +305,10 @@ class AddTaskWidget extends StatelessWidget {
           child: const Text('Cancel'),
         ),
         FilledButton(
-          onPressed: Navigator.of(context).pop,
+          onPressed: () {
+            BlocProvider.of<TaskCubit>(context).addNewTask();
+            Navigator.of(context).pop();
+          },
           child: const Text('Add Task'),
         ),
       ],
@@ -371,8 +376,8 @@ class AddTaskWidget extends StatelessWidget {
               showDatePicker(
                 helpText: 'Select End Date',
                 context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime.now(),
+                initialDate: BlocProvider.of<TaskCubit>(context).date,
+                firstDate: BlocProvider.of<TaskCubit>(context).date,
                 lastDate: DateTime.now().add(
                   const Duration(days: 365 * 2),
                 ),
@@ -389,12 +394,16 @@ class AddTaskWidget extends StatelessWidget {
                   .then((value) {
                 if (type == 'Start Time') {
                   DateTime startTime = DateTime(
-                    DateTime.now().year,
-                    DateTime.now().month,
-                    DateTime.now().day,
-                    value == null ? DateTime.now().hour : value.hour,
-                    value == null ? DateTime.now().minute : value.minute,
-                    DateTime.now().second,
+                    BlocProvider.of<TaskCubit>(context).date.year,
+                    BlocProvider.of<TaskCubit>(context).date.month,
+                    BlocProvider.of<TaskCubit>(context).date.day,
+                    value == null
+                        ? BlocProvider.of<TaskCubit>(context).date.hour
+                        : value.hour,
+                    value == null
+                        ? BlocProvider.of<TaskCubit>(context).date.minute
+                        : value.minute,
+                    BlocProvider.of<TaskCubit>(context).date.second,
                   );
                   BlocProvider.of<TaskCubit>(context)
                       .changeStartTime(startTime);

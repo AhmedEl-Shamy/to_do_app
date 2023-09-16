@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../Models/config.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../Cubits/theme_cubit/theme_cubit.dart';
@@ -12,7 +13,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SizeConfig.init(context);
-    BlocProvider.of<TaskCubit>(context).getTasks();
+    // BlocProvider.of<TaskCubit>(context).getTasks();
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, state) {
         return SafeArea(
@@ -45,9 +46,9 @@ class HomePage extends StatelessWidget {
               onPressed: () {
                 BlocProvider.of<TaskCubit>(context).restoreDefaults();
                 showDialog(
-                context: context,
-                builder: (context) =>  AddTaskWidget(),
-              );
+                  context: context,
+                  builder: (context) => AddTaskWidget(),
+                );
               },
               child: const Icon(Icons.add),
             ),
@@ -65,30 +66,28 @@ class HomePage extends StatelessWidget {
                         focusColor: Colors.transparent,
                         value: BlocProvider.of<TaskCubit>(context).tasksOption,
                         items: const [
-                          DropdownMenuItem(value: 'all',child: Text('All'),),
-                          DropdownMenuItem(value: 'day',child: Text('Day'),),
-                          DropdownMenuItem(value: 'custom',child: Text('Custom'),),
+                          DropdownMenuItem(
+                            value: 'all',
+                            child: Text('All'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'day',
+                            child: Text('Day'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'custom',
+                            child: Text('Custom'),
+                          ),
                         ],
-                        onChanged: BlocProvider.of<TaskCubit>(context).changeTaskOption,
+                        onChanged: BlocProvider.of<TaskCubit>(context)
+                            .changeTaskOption,
                       ),
-                      SizedBox(height: SizeConfig.heightBlock * 2,),
-                      Expanded(
-                        child: ListView(
-                          children: BlocProvider.of<TaskCubit>(context)
-                              .tasks
-                              .map(
-                                (task) => Padding(
-                                  padding: const EdgeInsets.only(
-                                    bottom: 5,
-                                  ),
-                                  child: TaskWidget(
-                                    task: task,
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
+                      SizedBox(
+                        height: SizeConfig.heightBlock * 2,
                       ),
+                      (BlocProvider.of<TaskCubit>(context)).tasks.isNotEmpty
+                          ? _displayTasks(context: context)
+                          : _noTasksMsg(context: context),
                     ],
                   );
                 },
@@ -97,6 +96,56 @@ class HomePage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Expanded _noTasksMsg({required BuildContext context}) {
+    return Expanded(
+      child: Column(
+        children: [
+          SizedBox(
+            height: SizeConfig.heightBlock * 15,
+          ),
+          SvgPicture.asset(
+            'images/task.svg',
+            width: SizeConfig.widthBlock * 50,
+            colorFilter: ColorFilter.mode(
+              Theme.of(context).colorScheme.primary,
+              BlendMode.srcIn,
+            ),
+          ),
+          SizedBox(
+            height: SizeConfig.heightBlock * 2,
+          ),
+          const Text(
+            'You don\'t have tasks to Dispay!\nAdding new tasks to make your days more productive.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Expanded _displayTasks({required BuildContext context}) {
+    return Expanded(
+      child: ListView(
+        children: BlocProvider.of<TaskCubit>(context)
+            .tasks
+            .map(
+              (task) => Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 5,
+                ),
+                child: TaskWidget(
+                  task: task,
+                ),
+              ),
+            )
+            .toList(),
+      ),
     );
   }
 }

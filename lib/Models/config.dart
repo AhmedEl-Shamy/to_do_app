@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:to_do/Models/task.dart';
 
 class SizeConfig{
   static late MediaQueryData mediaQueryData;
@@ -17,33 +16,8 @@ class SizeConfig{
   }
 }
 
-List<Task> constTasks = [
-  Task(name: 'Go to School', note: 'This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text.'),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School', note: 'This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text.'),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School', note: 'This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text.'),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School', note: 'This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text.'),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School', note: 'This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text.'),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School', note: 'This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text. This is not real text.'),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School',),
-  Task(name: 'Go to School',),
-];
-
 class ThemeColors {
   static final ColorScheme lightScheme = ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.light);
   static final ColorScheme darkScheme = ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark);
-
 }
 

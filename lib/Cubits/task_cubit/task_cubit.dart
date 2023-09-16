@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/Models/task.dart';
 import 'package:to_do/Models/config.dart';
+
 part 'task_state.dart';
 
 class TaskCubit extends Cubit<TaskState> {
   TaskCubit() : super(TaskInitial());
-  late List<Task> tasks;
+  late List<Task> tasks = List.empty(growable: true);
   String tasksOption = 'all';
   TextEditingController nameC = TextEditingController();
   TextEditingController noteC = TextEditingController();
@@ -18,21 +19,38 @@ class TaskCubit extends Cubit<TaskState> {
   String repeated = 'none';
   int reminder = 0;
 
-  void setNewTask() {
-
-  }
-
-  void getTasks() {
-    tasks = constTasks;
+  int lastTaskId = 0; //Until finishing the db
+  void addNewTask() {
+    tasks.add(Task(
+      name: nameC.text,
+      note:  noteC.text,
+      color: taskColor,
+      repeat: repeated,
+      reminder: reminder,
+      startTime: startTime,
+      endtTime: endTime,
+      date: date,
+      endDate: endDate,
+      id: lastTaskId,
+    ));
+    lastTaskId++;
     emit(TaskUpdated());
   }
+
+  // void getTasks() {
+  //   tasks = constTasks;
+  //   emit(TaskUpdated());
+  // }
 
   void changeTaskOption(String? value) {
     tasksOption = value!;
     emit(TasksOptionChanged());
   }
 
-  void deleteTasks() {}
+  void deleteTasks(int taskId) {
+    tasks.removeAt(tasks.indexWhere((element) => element.id == taskId));
+    emit(TaskUpdated());
+  }
 
   void editTask() {}
 
@@ -43,17 +61,32 @@ class TaskCubit extends Cubit<TaskState> {
 
   void changeEndDate(DateTime endDate) {
     this.endDate = endDate;
+    endTime = startTime.add(const Duration(hours: 1));
     emit(AddTaskEndDateChanged());
+    emit(AddTaskEndTimeChanged());
   }
 
-  void changeStartTime(DateTime startTime) {
-    this.startTime = startTime;
+  void changeStartTime(DateTime time) {
+    if (time.compareTo(DateTime.now()) < 0) {
+      date = date.add(const Duration(days: 1));
+      if (endDate != null && endDate!.compareTo(date) < 0) {
+        endDate = endDate!.add(const Duration(days: 1));
+      }
+    }
+    startTime = time;
     emit(AddTaskStartTimeChanged());
+    emit(AddTaskDateChanged());
+    emit(AddTaskEndDateChanged());
   }
 
   void changeEndTime(DateTime endTime) {
     this.endTime = endTime;
+    endDate = date;
+    if (endTime.compareTo(startTime) < 0) {
+      endDate = endDate!.add(const Duration(days: 1));
+    }
     emit(AddTaskEndTimeChanged());
+    emit(AddTaskEndDateChanged());
   }
 
   void changeRepeated(String? value) {
