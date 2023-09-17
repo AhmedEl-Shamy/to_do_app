@@ -9,7 +9,6 @@ import '../Widgets/add_task_widget.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
   @override
   Widget build(BuildContext context) {
     SizeConfig.init(context);
@@ -19,22 +18,20 @@ class HomePage extends StatelessWidget {
         return SafeArea(
           child: Scaffold(
             appBar: AppBar(
-              title: const Text(
+              foregroundColor: Theme.of(context).colorScheme.primary,
+              title: Text(
                 'Tasks',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
-              ),
-              leading: IconButton(
-                onPressed: BlocProvider.of<ThemeCubit>(context).changeTheme,
-                icon: (!BlocProvider.of<ThemeCubit>(context).isDark)
-                    ? const Icon(Icons.dark_mode_sharp)
-                    : const Icon(Icons.light_mode_sharp),
               ),
               actions: [
                 IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.person),
+                  onPressed: BlocProvider.of<ThemeCubit>(context).changeTheme,
+                  icon: (!BlocProvider.of<ThemeCubit>(context).isDark)
+                      ? const Icon(Icons.dark_mode_sharp)
+                      : const Icon(Icons.light_mode_sharp),
                 ),
                 SizedBox(
                   width: SizeConfig.widthBlock,
@@ -47,7 +44,35 @@ class HomePage extends StatelessWidget {
                 BlocProvider.of<TaskCubit>(context).restoreDefaults();
                 showDialog(
                   context: context,
-                  builder: (context) => AddTaskWidget(),
+                  builder: (context) => AlertDialog(
+                    insetPadding: EdgeInsets.symmetric(
+                        vertical: SizeConfig.heightBlock * 5,
+                        horizontal: SizeConfig.widthBlock * 2),
+                    title: const Text(
+                      'Add New Task',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    content: SizedBox(
+                      width: SizeConfig.widthBlock * 95,
+                      height: SizeConfig.heightBlock * 90,
+                      child: SingleChildScrollView(
+                        child: AddTaskWidget(),
+                      ),
+                    ),
+                    actions: [
+                      FilledButton(
+                        onPressed: Navigator.of(context).pop,
+                        child: const Text('Cancel'),
+                      ),
+                      FilledButton(
+                        onPressed: () {
+                          BlocProvider.of<TaskCubit>(context).addNewTask();
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Add Task'),
+                      ),
+                    ],
+                  ),
                 );
               },
               child: const Icon(Icons.add),

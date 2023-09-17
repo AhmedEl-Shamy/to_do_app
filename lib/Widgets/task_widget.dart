@@ -5,9 +5,10 @@ import 'package:to_do/Cubits/task_cubit/task_cubit.dart';
 import 'package:to_do/Models/config.dart';
 import '../Models/task.dart';
 
+@immutable
 class TaskWidget extends StatefulWidget {
-  TaskWidget({required this.task, super.key});
-  Task task;
+  const TaskWidget({required this.task, super.key});
+  final Task task;
 
   @override
   State<TaskWidget> createState() => _TaskWidgetState();
@@ -51,7 +52,7 @@ class _TaskWidgetState extends State<TaskWidget> {
         ),
       ),
       child: GestureDetector(
-        onTap: (){},
+        onTap: () => Navigator.pushNamed(context, '/task_info', arguments: widget.task),
         child: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
@@ -91,11 +92,14 @@ class _TaskWidgetState extends State<TaskWidget> {
                   color: Colors.white, width: 1, style: BorderStyle.solid)),
         ),
         Expanded(
-          child: Text(
-            widget.task.name,
-            style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-            overflow: TextOverflow.ellipsis,
+          child: Hero(
+            tag: '${widget.task.id}',
+            child: Text(
+              widget.task.name,
+              style: const TextStyle(
+                  fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ],

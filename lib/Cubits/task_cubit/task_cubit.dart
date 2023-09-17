@@ -19,6 +19,7 @@ class TaskCubit extends Cubit<TaskState> {
   String repeated = 'none';
   int reminder = 0;
 
+
   int lastTaskId = 0; //Until finishing the db
   void addNewTask() {
     tasks.add(Task(
@@ -52,7 +53,23 @@ class TaskCubit extends Cubit<TaskState> {
     emit(TaskUpdated());
   }
 
-  void editTask() {}
+  void editTask(Task task) {
+    int index = tasks.indexWhere((element) => element.id == task.id);
+    tasks.removeAt(index);
+    tasks.insert(index, Task(
+      name: nameC.text,
+      note:  noteC.text,
+      color: taskColor,
+      repeat: repeated,
+      reminder: reminder,
+      startTime: startTime,
+      endtTime: endTime,
+      date: date,
+      endDate: endDate,
+      id: lastTaskId,
+    ));
+    emit(TaskUpdated());
+  }
 
   void changeDate(DateTime date) {
     this.date = date;
@@ -105,8 +122,8 @@ class TaskCubit extends Cubit<TaskState> {
   }
 
   void restoreDefaults() {
-    nameC = TextEditingController();
-    noteC = TextEditingController();
+    nameC.text = '';
+    noteC.text = '';
     date = DateTime.now();
     startTime = DateTime.now();
     endDate = null;
@@ -114,5 +131,17 @@ class TaskCubit extends Cubit<TaskState> {
     taskColor = Colors.red;
     repeated = 'none';
     reminder = 0;
+  }
+
+  void setDataFromTask (Task task){
+    nameC.text = task.name;
+    noteC.text = task.note;
+    date = task.date;
+    startTime = task.startTime;
+    endDate = task.endDate;
+    endTime = task.endtTime;
+    taskColor = task.color;
+    repeated = task.repeat;
+    reminder = task.reminder;
   }
 }
