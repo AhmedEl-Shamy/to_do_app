@@ -1,10 +1,9 @@
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
   static late final Database _db;
 
   static Future<void> init() async {
-      DatabaseFactory databaseFactory = databaseFactoryFfi;
       String path = '${await getDatabasesPath()}/todo.db';
       try {
         _db = await openDatabase(
@@ -33,10 +32,5 @@ class DatabaseHelper {
       } on Exception catch (e) {
         print(e);
       }
-      await createTables();
-  }
-
-  static Future<void> createTables() async {
-    ;
   }
 }
