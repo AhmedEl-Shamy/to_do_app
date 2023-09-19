@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/Cubits/theme_cubit/theme_cubit.dart';
 import 'package:to_do/Models/config.dart';
-import 'package:to_do/Models/database_helper.dart';
+// import 'package:to_do/Models/database_helper.dart';
 import 'package:to_do/UI/task_edit_page.dart';
 import 'package:to_do/UI/task_info_page.dart';
 import 'Cubits/task_cubit/task_cubit.dart';
@@ -10,7 +10,13 @@ import 'UI/home.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  DatabaseHelper.init();
+  DateTime d = DateTime.now();
+  String s = d.toString();
+  s = '${s.substring(0, 5)}${(d.month+1)%12}${s.substring(7)}';
+  d = DateTime.parse(s);
+  print(d.toString());
+  
+  // DatabaseHelper.init();
   runApp(MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => ThemeCubit()),

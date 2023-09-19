@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/Models/task.dart';
-import 'package:to_do/Models/config.dart';
+import 'package:intl/intl.dart';
+// import 'package:to_do/Models/config.dart';
 
 part 'task_state.dart';
 
 class TaskCubit extends Cubit<TaskState> {
   TaskCubit() : super(TaskInitial());
-  late List<Task> tasks = List.empty(growable: true);
+  List<Task> tasks = List.empty(growable: true);
   String tasksOption = 'all';
   TextEditingController nameC = TextEditingController();
   TextEditingController noteC = TextEditingController();
@@ -19,12 +20,11 @@ class TaskCubit extends Cubit<TaskState> {
   String repeated = 'none';
   int reminder = 0;
 
-
   int lastTaskId = 0; //Until finishing the db
   void addNewTask() {
     tasks.add(Task(
       name: nameC.text,
-      note:  noteC.text,
+      note: noteC.text,
       color: taskColor,
       repeat: repeated,
       reminder: reminder,
@@ -42,11 +42,115 @@ class TaskCubit extends Cubit<TaskState> {
   //   tasks = constTasks;
   //   emit(TaskUpdated());
   // }
+  int dateTimeCopmerable(DateTime date1, DateTime date2) {
+    if (date1.year > date2.year)
+      return 1;
+    else if (date1.year < date2.year)
+      return -1;
+    else if (date1.month > date2.month)
+      return 1;
+    else if (date1.month < date2.month)
+      return -1;
+    else if (date1.day > date2.day)
+      return 1;
+    else if (date1.day < date2.day)
+      return -1;
+    else
+      return 0;
+  }
 
-  void changeTaskOption(String? value) {
+  void changeTaskOption(String? value, BuildContext context) {
     tasksOption = value!;
     emit(TasksOptionChanged());
   }
+
+  // if (value == 'custom') {
+  //     DateTime? customDate;
+  //     showDatePicker(
+  //       helpText: 'Select Date',
+  //       context: context,
+  //       initialDate: DateTime.now(),
+  //       firstDate: DateTime.now(),
+  //       lastDate: DateTime.now().add(
+  //         const Duration(days: 365 * 2),
+  //       ),
+  //     ).then((value) {
+  //       customDate = value;
+  //     });
+  //     if (customDate != null) {}
+  //   } else if (value == 'day') {
+  //     tasks = tasks.where((element) {
+  //       if ((element.repeat == 'daily' && dateTimeCopmerable(element.date, DateTime.now()) <= 0) ||
+  //           dateTimeCopmerable(element.date, DateTime.now()) == 0)
+  //         return true;
+  //       else
+  //         return false;
+  //     }).toList();
+  //   } else {
+  //   }
+
+  // List<Task> displayTask() {
+  //   if (tasksOption == 'all')
+  //     return tasks;
+  //   else if (tasksOption == 'day') {
+  //     print(DateFormat.yM().format(DateTime.now()));
+  //     return tasks.where((element) {
+  //       if ((element.repeat == 'daily' &&
+  //               dateTimeCopmerable(element.date, DateTime.now()) <= 0) ||
+  //           DateFormat.yM().format(element.date) ==
+  //               DateFormat.yM().format(DateTime.now()))
+  //         return true;
+  //       else if (element.repeat == 'monthly' &&
+  //           DateFormat.yMd()
+  //                   .format(element.date.add(const Duration(days: 30))) ==
+  //               DateFormat.yMd().format(DateTime.now()))
+  //         return true;
+  //       else if (element.repeat == 'yearly' &&
+  //           DateFormat.yMd()
+  //                   .format(element.date.add(const Duration(days: 365))) ==
+  //               DateFormat.yMd().format(DateTime.now()))
+  //         return true;
+  //       else
+  //         return false;
+  //     }).toList();
+  //   } else {
+  //     print(DateFormat.yM().format(DateTime.now()));
+  //     return tasks.where((element) {
+  //       if ((element.repeat == 'daily' &&
+  //               dateTimeCopmerable(element.date, DateTime.now()) <= 0) ||
+  //           DateFormat.yM().format(element.date) ==
+  //               DateFormat.yM().format(DateTime.now()))
+  //         return true;
+  //       else if (element.repeat == 'monthly' &&
+  //           DateFormat.yMd()
+  //                   .format(element.date.add(const Duration(days: 30))) ==
+  //               DateFormat.yMd().format(DateTime.now()))
+  //         return true;
+  //       else if (element.repeat == 'yearly' &&
+  //           DateFormat.yMd()
+  //                   .format(element.date.add(const Duration(days: 365))) ==
+  //               DateFormat.yMd().format(DateTime.now()))
+  //         return true;
+  //       else
+  //         return false;
+  //     }).toList();
+  //   }
+  // }
+
+  // void upadateRepeatedTasks() {
+  //   for (int i = 0; i < tasks.length; i++) {
+  //     if (tasks[i].repeat == 'daily') {
+  //       tasks[i].date = tasks[i].date.add(const Duration(days: 1));
+  //       if (tasks[i].endDate != null)
+  //         tasks[i].endDate = tasks[i].endDate!.add(const Duration(days: 1));
+  //     } else if (tasks[i].repeat == 'monthly') {
+  //       if (DateFormat.yMd()
+  //               .format(DateTime.now().subtract(const Duration(days: 1))) ==
+  //           DateFormat.yMd().format(tasks[i].date)) {           
+  //           }
+  //     }
+  //   }
+  // }
 
   void deleteTasks(int taskId) {
     tasks.removeAt(tasks.indexWhere((element) => element.id == taskId));
@@ -56,23 +160,28 @@ class TaskCubit extends Cubit<TaskState> {
   void editTask(Task task) {
     int index = tasks.indexWhere((element) => element.id == task.id);
     tasks.removeAt(index);
-    tasks.insert(index, Task(
-      name: nameC.text,
-      note:  noteC.text,
-      color: taskColor,
-      repeat: repeated,
-      reminder: reminder,
-      startTime: startTime,
-      endtTime: endTime,
-      date: date,
-      endDate: endDate,
-      id: lastTaskId,
-    ));
+    tasks.insert(
+        index,
+        Task(
+          name: nameC.text,
+          note: noteC.text,
+          color: taskColor,
+          repeat: repeated,
+          reminder: reminder,
+          startTime: startTime,
+          endtTime: endTime,
+          date: date,
+          endDate: endDate,
+          id: lastTaskId,
+        ));
     emit(TaskUpdated());
   }
 
-  void changeDate(DateTime date) {
-    this.date = date;
+  void changeDate(DateTime? date) {
+    if (date != null)
+      this.date = date;
+    else
+      date = DateTime.now();
     emit(AddTaskDateChanged());
   }
 
@@ -133,7 +242,7 @@ class TaskCubit extends Cubit<TaskState> {
     reminder = 0;
   }
 
-  void setDataFromTask (Task task){
+  void setDataFromTask(Task task) {
     nameC.text = task.name;
     noteC.text = task.note;
     date = task.date;

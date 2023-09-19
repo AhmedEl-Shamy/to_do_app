@@ -311,6 +311,7 @@ class AddTaskWidget extends StatelessWidget {
           ),
         ),
       );
+  
   Column _pickerButton(
       {required String type,
       required String str,
@@ -340,7 +341,7 @@ class AddTaskWidget extends StatelessWidget {
                   const Duration(days: 365 * 2),
                 ),
               ).then((value) =>
-                  BlocProvider.of<TaskCubit>(context).changeDate(value!));
+                  BlocProvider.of<TaskCubit>(context).changeDate(value));
             } else if (type == 'End Date') {
               showDatePicker(
                 helpText: 'Select End Date',
@@ -382,7 +383,7 @@ class AddTaskWidget extends StatelessWidget {
                       DateTime.now().year,
                       DateTime.now().month,
                       DateTime.now().day,
-                      value!.hour,
+                      value.hour,
                       value.minute,
                       DateTime.now().second,
                     );
@@ -398,7 +399,7 @@ class AddTaskWidget extends StatelessWidget {
               Text(str),
               (type == 'Date' || type == 'End Date')
                   ? const Icon(Icons.calendar_month_outlined)
-                  : const Icon(Icons.alarm_outlined),
+                  : const Icon(Icons.access_time),
             ],
           ),
         )

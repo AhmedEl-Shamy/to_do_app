@@ -147,7 +147,7 @@ class _TaskWidgetState extends State<TaskWidget> {
         Row(
           children: [
             const Icon(
-              Icons.alarm_outlined,
+              Icons.access_time,
               color: Colors.white,
               size: 16,
             ),

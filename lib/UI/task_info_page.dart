@@ -103,12 +103,12 @@ class TaskInfoPage extends StatelessWidget {
                   SizedBox(height: SizeConfig.heightBlock * 5),
                   _addInfo(
                       type: 'Repeat',
-                      value: '\t${task.repeat}',
+                      value: (task.repeat != 'none')? '\t${task.repeat}' : '\tNone',
                       context: context),
                   SizedBox(height: SizeConfig.heightBlock * 4),
                   _addInfo(
                       type: 'Reminder',
-                      value: '\t${task.reminder} minutes early.',
+                      value: (task.reminder != 0)? '\t${task.reminder} minutes early' : '\tNone',
                       context: context),
                   SizedBox(height: SizeConfig.heightBlock * 4),
                   Row(
@@ -160,7 +160,7 @@ class TaskInfoPage extends StatelessWidget {
           Icon(Icons.calendar_month_outlined,
               size: 18, color: Theme.of(context).colorScheme.primary)
         else if (type == 'Start Time' || type == 'End Time')
-          Icon(Icons.alarm_outlined,
+          Icon(Icons.access_time,
               size: 18, color: Theme.of(context).colorScheme.primary)
         else if (type == 'Repeat')
           Icon(Icons.repeat,

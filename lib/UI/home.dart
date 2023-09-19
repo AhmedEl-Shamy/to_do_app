@@ -104,8 +104,8 @@ class HomePage extends StatelessWidget {
                             child: Text('Custom'),
                           ),
                         ],
-                        onChanged: BlocProvider.of<TaskCubit>(context)
-                            .changeTaskOption,
+                        onChanged: (value) => BlocProvider.of<TaskCubit>(context)
+                            .changeTaskOption(value, context),
                       ),
                       SizedBox(
                         height: SizeConfig.heightBlock * 2,
@@ -133,7 +133,7 @@ class HomePage extends StatelessWidget {
           ),
           SvgPicture.asset(
             'images/task.svg',
-            width: SizeConfig.widthBlock * 50,
+            width: 125,
             colorFilter: ColorFilter.mode(
               Theme.of(context).colorScheme.primary,
               BlendMode.srcIn,
@@ -143,7 +143,7 @@ class HomePage extends StatelessWidget {
             height: SizeConfig.heightBlock * 2,
           ),
           const Text(
-            'You don\'t have tasks to Dispay!\nAdding new tasks to make your days more productive.',
+            'You don\'t have tasks to Display!\nAdding new tasks to make your days more productive.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontWeight: FontWeight.bold,
