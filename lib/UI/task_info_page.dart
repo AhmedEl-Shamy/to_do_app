@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:to_do/Cubits/task_cubit/task_cubit.dart';
+
+import 'package:to_do/Cubits/edit_task_cubit/edit_task_cubit.dart';
 import 'package:to_do/Cubits/theme_cubit/theme_cubit.dart';
 import 'package:to_do/Models/config.dart';
 import 'package:to_do/Models/task.dart';
@@ -11,7 +12,7 @@ class TaskInfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Task task = ModalRoute.of(context)!.settings.arguments as Task;
-    BlocProvider.of<TaskCubit>(context).setDataFromTask(task);
+    BlocProvider.of<EditTaskCubit>(context).setDataFromTask(task);
 
     return SafeArea(
       child: Scaffold(
@@ -75,14 +76,14 @@ class TaskInfoPage extends StatelessWidget {
                   ),
                   _addInfo(
                     type: 'Start Date',
-                    value: '\t${DateFormat('d/M/y').format(task.date)}',
+                    value: '\t${DateFormat('d/M/y').format(task.startDateTime)}',
                     context: context,
                   ),
                   SizedBox(height: SizeConfig.heightBlock * 2),
                   _addInfo(
                     type: 'End Date',
-                    value: (task.endDate != null)
-                        ? '\t${DateFormat('d/M/y').format(task.endDate!)}'
+                    value: (task.endDateTime != null)
+                        ? '\t${DateFormat('d/M/y').format(task.endDateTime!)}'
                         : '\tNone',
                     context: context,
                   ),
@@ -91,13 +92,13 @@ class TaskInfoPage extends StatelessWidget {
                   ),
                   _addInfo(
                       type: 'Start Time',
-                      value: '\t${DateFormat('h:m a').format(task.startTime)}',
+                      value: '\t${DateFormat('h:m a').format(task.startDateTime)}',
                       context: context),
                   SizedBox(height: SizeConfig.heightBlock * 2),
                   _addInfo(
                       type: 'End Time',
-                      value: (task.endDate != null)
-                          ? '\t${DateFormat('h:m a').format(task.endtTime!)}'
+                      value: (task.endDateTime != null)
+                          ? '\t${DateFormat('h:m a').format(task.endDateTime!)}'
                           : '\tNone',
                       context: context),
                   SizedBox(height: SizeConfig.heightBlock * 5),

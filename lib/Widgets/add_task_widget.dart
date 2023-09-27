@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:to_do/Cubits/task_cubit/task_cubit.dart';
+import 'package:to_do/Cubits/edit_task_cubit/edit_task_cubit.dart';
 import 'package:to_do/Models/config.dart';
 
 class AddTaskWidget extends StatelessWidget {
@@ -21,40 +21,40 @@ class AddTaskWidget extends StatelessWidget {
         SizedBox(height: SizeConfig.heightBlock * 2),
         _addTaskTextField(
           label: 'Name',
-          controller: BlocProvider.of<TaskCubit>(context).nameC,
+          controller: BlocProvider.of<EditTaskCubit>(context).nameC,
           context: context,
           lines: 1,
         ),
         SizedBox(height: SizeConfig.heightBlock * 2),
         _addTaskTextField(
           label: 'Note',
-          controller: BlocProvider.of<TaskCubit>(context).noteC,
+          controller: BlocProvider.of<EditTaskCubit>(context).noteC,
           context: context,
           lines: 3,
         ),
         SizedBox(height: SizeConfig.heightBlock * 2),
-        BlocBuilder<TaskCubit, TaskState>(
-          buildWhen: (previous, current) => current is AddTaskDateChanged,
+        BlocBuilder<EditTaskCubit, EditTaskState>(
+          buildWhen: (previous, current) => current is EditTaskStartDateTimeChanged,
           builder: (context, state) {
             return _pickerButton(
               type: 'Date',
               str: DateFormat('d/M/y')
-                  .format(BlocProvider.of<TaskCubit>(context).date),
+                  .format(BlocProvider.of<EditTaskCubit>(context).startDateTime),
               context: context,
             );
           },
         ),
         SizedBox(height: SizeConfig.heightBlock * 2),
-        BlocBuilder<TaskCubit, TaskState>(
+        BlocBuilder<EditTaskCubit, EditTaskState>(
           buildWhen: (previous, current) =>
-              current is AddTaskEndDateChanged || current is AddTaskDateChanged,
+              current is EditTaskEndDateTimeChanged,
           builder: (context, state) {
             return _pickerButton(
               type: 'End Date',
-              str: (BlocProvider.of<TaskCubit>(context).endDate == null)
+              str: (BlocProvider.of<EditTaskCubit>(context).endTime == null)
                   ? 'None'
                   : DateFormat('d/M/y')
-                      .format(BlocProvider.of<TaskCubit>(context).endDate!),
+                      .format(BlocProvider.of<EditTaskCubit>(context).endTime!),
               context: context,
             );
           },
@@ -63,14 +63,14 @@ class AddTaskWidget extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: BlocBuilder<TaskCubit, TaskState>(
+              child: BlocBuilder<EditTaskCubit, EditTaskState>(
                 buildWhen: (previous, current) =>
-                    current is AddTaskStartTimeChanged,
+                    current is EditTaskStartDateTimeChanged,
                 builder: (context, state) {
                   return _pickerButton(
                     type: 'Start Time',
                     str: DateFormat('h:m a')
-                        .format(BlocProvider.of<TaskCubit>(context).startTime),
+                        .format(BlocProvider.of<EditTaskCubit>(context).startDateTime),
                     context: context,
                   );
                 },
@@ -78,16 +78,16 @@ class AddTaskWidget extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: BlocBuilder<TaskCubit, TaskState>(
+              child: BlocBuilder<EditTaskCubit, EditTaskState>(
                 buildWhen: (previous, current) =>
-                    current is AddTaskEndTimeChanged,
+                    current is EditTaskEndDateTimeChanged,
                 builder: (context, state) {
                   return _pickerButton(
                     type: 'End Time',
-                    str: (BlocProvider.of<TaskCubit>(context).endTime == null)
+                    str: (BlocProvider.of<EditTaskCubit>(context).endTime == null)
                         ? 'None'
                         : DateFormat('h:m a').format(
-                            BlocProvider.of<TaskCubit>(context).endTime!,
+                            BlocProvider.of<EditTaskCubit>(context).endTime!,
                           ),
                     context: context,
                   );
@@ -127,12 +127,12 @@ class AddTaskWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              child: BlocBuilder<TaskCubit, TaskState>(
+              child: BlocBuilder<EditTaskCubit, EditTaskState>(
                 buildWhen: (previous, current) =>
-                    current is AddTaskRepeatedChanged,
+                    current is EditTaskRepeatedChanged,
                 builder: (context, state) {
                   return DropdownButton(
-                    value: BlocProvider.of<TaskCubit>(context).repeated,
+                    value: BlocProvider.of<EditTaskCubit>(context).repeated,
                     underline: const SizedBox(),
                     borderRadius: BorderRadius.circular(10),
                     isExpanded: true,
@@ -166,7 +166,7 @@ class AddTaskWidget extends StatelessWidget {
                       ),
                     ],
                     onChanged:
-                        BlocProvider.of<TaskCubit>(context).changeRepeated,
+                        BlocProvider.of<EditTaskCubit>(context).changeRepeated,
                   );
                 },
               ),
@@ -204,12 +204,12 @@ class AddTaskWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              child: BlocBuilder<TaskCubit, TaskState>(
+              child: BlocBuilder<EditTaskCubit, EditTaskState>(
                 buildWhen: (previous, current) =>
-                    current is AddTaskReminderChanged,
+                    current is EditTaskReminderChanged,
                 builder: (context, state) {
                   return DropdownButton(
-                    value: BlocProvider.of<TaskCubit>(context).reminder,
+                    value: BlocProvider.of<EditTaskCubit>(context).reminder,
                     underline: const SizedBox(),
                     borderRadius: BorderRadius.circular(10),
                     isExpanded: true,
@@ -232,7 +232,7 @@ class AddTaskWidget extends StatelessWidget {
                                 : Text('$e Minutes Early')))
                         .toList(),
                     onChanged:
-                        BlocProvider.of<TaskCubit>(context).changeReminder,
+                        BlocProvider.of<EditTaskCubit>(context).changeReminder,
                   );
                 },
               ),
@@ -253,13 +253,13 @@ class AddTaskWidget extends StatelessWidget {
                     (e) => Padding(
                       padding: const EdgeInsets.only(right: 5),
                       child: GestureDetector(
-                        child: BlocBuilder<TaskCubit, TaskState>(
+                        child: BlocBuilder<EditTaskCubit, EditTaskState>(
                           buildWhen: (previous, current) =>
-                              current is AddTaskColorChanged,
+                              current is EditTaskColorChanged,
                           builder: (context, state) {
                             return CircleAvatar(
                               backgroundColor: e,
-                              child: (BlocProvider.of<TaskCubit>(context)
+                              child: (BlocProvider.of<EditTaskCubit>(context)
                                           .taskColor ==
                                       e)
                                   ? const Icon(
@@ -270,7 +270,7 @@ class AddTaskWidget extends StatelessWidget {
                             );
                           },
                         ),
-                        onTap: () => BlocProvider.of<TaskCubit>(context)
+                        onTap: () => BlocProvider.of<EditTaskCubit>(context)
                             .changeSelectedColor(e),
                       ),
                     ),
@@ -341,19 +341,19 @@ class AddTaskWidget extends StatelessWidget {
                   const Duration(days: 365 * 2),
                 ),
               ).then((value) =>
-                  BlocProvider.of<TaskCubit>(context).changeDate(value));
+                  BlocProvider.of<EditTaskCubit>(context).changeDate(value));
             } else if (type == 'End Date') {
               showDatePicker(
                 helpText: 'Select End Date',
                 context: context,
-                initialDate: BlocProvider.of<TaskCubit>(context).date,
-                firstDate: BlocProvider.of<TaskCubit>(context).date,
+                initialDate: BlocProvider.of<EditTaskCubit>(context).startDateTime,
+                firstDate: BlocProvider.of<EditTaskCubit>(context).startDateTime,
                 lastDate: DateTime.now().add(
                   const Duration(days: 365 * 2),
                 ),
               ).then((value) {
                 if (value != null) {
-                  BlocProvider.of<TaskCubit>(context).changeEndDate(value);
+                  BlocProvider.of<EditTaskCubit>(context).changeEndDate(value);
                 }
               });
             } else {
@@ -364,18 +364,18 @@ class AddTaskWidget extends StatelessWidget {
                   .then((value) {
                 if (type == 'Start Time') {
                   DateTime startTime = DateTime(
-                    BlocProvider.of<TaskCubit>(context).date.year,
-                    BlocProvider.of<TaskCubit>(context).date.month,
-                    BlocProvider.of<TaskCubit>(context).date.day,
+                    BlocProvider.of<EditTaskCubit>(context).startDateTime.year,
+                    BlocProvider.of<EditTaskCubit>(context).startDateTime.month,
+                    BlocProvider.of<EditTaskCubit>(context).startDateTime.day,
                     value == null
-                        ? BlocProvider.of<TaskCubit>(context).date.hour
+                        ? BlocProvider.of<EditTaskCubit>(context).startDateTime.hour
                         : value.hour,
                     value == null
-                        ? BlocProvider.of<TaskCubit>(context).date.minute
+                        ? BlocProvider.of<EditTaskCubit>(context).startDateTime.minute
                         : value.minute,
-                    BlocProvider.of<TaskCubit>(context).date.second,
+                    BlocProvider.of<EditTaskCubit>(context).startDateTime.second,
                   );
-                  BlocProvider.of<TaskCubit>(context)
+                  BlocProvider.of<EditTaskCubit>(context)
                       .changeStartTime(startTime);
                 } else {
                   if (value != null) {
@@ -387,7 +387,7 @@ class AddTaskWidget extends StatelessWidget {
                       value.minute,
                       DateTime.now().second,
                     );
-                    BlocProvider.of<TaskCubit>(context).changeEndTime(endTime);
+                    BlocProvider.of<EditTaskCubit>(context).changeEndTime(endTime);
                   }
                 }
               });

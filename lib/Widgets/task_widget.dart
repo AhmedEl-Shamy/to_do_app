@@ -1,48 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+
 import 'package:to_do/Cubits/task_cubit/task_cubit.dart';
 import 'package:to_do/Models/config.dart';
 import '../Models/task.dart';
 
 @immutable
-class TaskWidget extends StatefulWidget {
+class TaskWidget extends StatelessWidget {
   const TaskWidget({required this.task, super.key});
   final Task task;
 
   @override
-  State<TaskWidget> createState() => _TaskWidgetState();
-}
-
-class _TaskWidgetState extends State<TaskWidget> {
-  // with SingleTickerProviderStateMixin {
-  // late AnimationController animationController;
-  // late Animation<AlignmentGeometry> animation;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   animationController =
-  //       AnimationController(vsync: this, duration: const Duration(seconds: 1));
-  //   animation = Tween(
-  //           begin: AlignmentDirectional.centerEnd,
-  //           end: AlignmentDirectional.centerEnd)
-  //       .animate(
-  //     CurvedAnimation(parent: animationController, curve: Curves.linear),
-  //   );
-  // }
-
-  @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: Key('${widget.task.id}'),
-      onDismissed: (direction) =>
-          BlocProvider.of<TaskCubit>(context).deleteTasks(widget.task.id),
+      key: Key('${task.id}'),
+      onDismissed: (direction) {
+        if (direction == DismissDirection.startToEnd)
+          Navigator.pushNamed(context, '/task_info', arguments: task);
+        else
+          BlocProvider.of<TaskCubit>(context).deleteTask(task.id);
+      },
       direction: DismissDirection.horizontal,
-      background: const SizedBox(
+      background: SizedBox(
         child: Icon(
-          Icons.delete,
-          color: Colors.red,
+          Icons.edit_document,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
       secondaryBackground: const SizedBox(
@@ -51,128 +34,143 @@ class _TaskWidgetState extends State<TaskWidget> {
           color: Colors.red,
         ),
       ),
-      child: GestureDetector(
-        onTap: () => Navigator.pushNamed(context, '/task_info', arguments: widget.task),
-        child: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: widget.task.color,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
+      child: (task.note == '') ? _normalTask() : _advancedTask(),
+    );
+  }
+
+  Checkbox _checkBox() => Checkbox(
+        value: task.isFinished,
+        onChanged: (value) {
+          // setState(() {
+          //   task.isFinished = !task.isFinished;
+          //   // BlocProvider.of<TaskCubit>(context)
+          //   //     .deleteTasks(task.id);
+          // });
+        },
+        fillColor: MaterialStateProperty.all(Colors.transparent),
+        side: const BorderSide(
+            color: Colors.white, width: 1.5, style: BorderStyle.solid),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: const BorderSide(
+                color: Colors.white, width: 1, style: BorderStyle.solid)),
+      );
+
+  Row _infoSection() => Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _upperSection(),
-              SizedBox(height: SizeConfig.heightBlock),
-              _bottomSection(),
+              const Icon(
+                Icons.access_time,
+                color: Colors.white,
+                size: 16,
+              ),
+              SizedBox(
+                width: SizeConfig.widthBlock,
+              ),
+              if (task.endDateTime == null)
+                Text(
+                  DateFormat('h:m a').format(task.startDateTime),
+                  style: const TextStyle(color: Colors.white),
+                )
+              else
+                Text(
+                  '${DateFormat('h:m a').format(task.startDateTime)} : ${DateFormat('h:m a').format(task.endDateTime!)}',
+                  style: const TextStyle(color: Colors.white),
+                ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Row _upperSection() {
-    return Row(
-      children: [
-        Checkbox(
-          value: widget.task.isFinished,
-          onChanged: (value) {
-            setState(() {
-              widget.task.isFinished = !widget.task.isFinished;
-              // BlocProvider.of<TaskCubit>(context)
-              //     .deleteTasks(widget.task.id);
-            });
-          },
-          fillColor: MaterialStateProperty.all(Colors.transparent),
-          side: const BorderSide(
-              color: Colors.white, width: 1.5, style: BorderStyle.solid),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: const BorderSide(
-                  color: Colors.white, width: 1, style: BorderStyle.solid)),
-        ),
-        Expanded(
-          child: Hero(
-            tag: '${widget.task.id}',
-            child: Text(
-              widget.task.name,
-              style: const TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-              overflow: TextOverflow.ellipsis,
-            ),
+          SizedBox(
+            width: SizeConfig.widthBlock * 4,
           ),
-        ),
-      ],
-    );
-  }
-
-  Row _bottomSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
+          if (task.repeat != 'none')
             const Icon(
-              Icons.calendar_month_outlined,
+              Icons.repeat_outlined,
               color: Colors.white,
               size: 16,
             ),
+          if (task.repeat != 'none')
             SizedBox(
-              width: SizeConfig.widthBlock,
+              width: SizeConfig.widthBlock * 4,
             ),
-            (widget.task.endDate != null &&
-                    DateTime.now().compareTo(widget.task.startTime) >= 0)
-                ? Text(
-                    DateFormat('d/M/y').format(widget.task.endDate!),
-                    style: const TextStyle(color: Colors.white),
-                  )
-                : Text(
-                    DateFormat('d/M/y').format(widget.task.date),
-                    style: const TextStyle(color: Colors.white),
-                  )
-          ],
-        ),
-        if (widget.task.note != '')
-          const Icon(
-            Icons.notes_rounded,
-            color: Colors.white,
-            size: 16,
-          ),
-        if (widget.task.repeat != 'none')
-          const Icon(
-            Icons.repeat_outlined,
-            color: Colors.white,
-            size: 16,
-          ),
-        Row(
-          children: [
+          if (task.reminder != 0)
             const Icon(
-              Icons.access_time,
+              Icons.notifications,
               color: Colors.white,
               size: 16,
             ),
+          if (task.reminder != 0)
             SizedBox(
-              width: SizeConfig.widthBlock,
+              width: SizeConfig.widthBlock * 4,
             ),
-            (widget.task.endtTime != null &&
-                    DateTime.now().compareTo(widget.task.startTime) >= 0)
-                ? Text(
-                    DateFormat('h:m a').format(widget.task.endtTime!),
-                    style: const TextStyle(color: Colors.white),
-                  )
-                : Text(
-                    DateFormat('h:m a').format(widget.task.startTime),
-                    style: const TextStyle(color: Colors.white),
-                  )
-          ],
-        ),
-      ],
-    );
-  }
+          if (task.getSubtasks.isNotEmpty)
+            const Icon(
+              Icons.account_tree_rounded,
+              color: Colors.white,
+              size: 16,
+            )
+        ],
+      );
 
-  // @override
-  // void dispose(){
-  //   super.dispose();
-  //   animationController.dispose();
-  // }
+  ExpansionTile _advancedTask() => ExpansionTile(
+        title: Hero(
+          tag: '${task.id}',
+          child: Text(
+            task.name,
+            style: const TextStyle(
+                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        subtitle: _infoSection(),
+        leading: _checkBox(),
+        trailing:
+            (task.note != '') ? const Icon(Icons.notes) : const SizedBox(),
+        iconColor: Colors.white,
+        collapsedIconColor: Colors.white,
+        backgroundColor: task.color,
+        // childrenPadding: const EdgeInsets.symmetric(horizontal: 2),
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        collapsedBackgroundColor: task.color,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        collapsedShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        children: [
+          Text(
+            '\n${task.note}',
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.start,
+          ),
+          SizedBox(height: SizeConfig.heightBlock * 3),
+          ...task.getSubtasks.map((e) => Container()).toList()
+        ],
+      );
+
+  ListTile _normalTask() => ListTile(
+        leading: _checkBox(),
+        title: Hero(
+          tag: '${task.id}',
+          child: Text(
+            task.name,
+            style: const TextStyle(
+                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        subtitle: _infoSection(),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        tileColor: task.color,
+      );
 }
