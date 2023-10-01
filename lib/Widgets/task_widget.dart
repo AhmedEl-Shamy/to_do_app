@@ -168,9 +168,6 @@ class TaskWidget extends StatelessWidget {
           ),
           trailing: _moreInfoButton(context, task),
           subtitle: _infoSection(),
-          // shape: RoundedRectangleBorder(
-          //   borderRadius: BorderRadius.circular(10),
-          // ),
         ),
   );
 
