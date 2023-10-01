@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/Cubits/task_cubit/task_cubit.dart';
@@ -16,6 +18,10 @@ class EditTaskCubit extends Cubit<EditTaskState> {
   int reminder = 0;
   int lastTaskId = 0; //Until finishing the db
 
+  List<Subtask> subtasks = List<Subtask>.empty(growable: true);
+  TextEditingController subtaskNameC = TextEditingController();
+  int lastSubtaskId = 0;
+
   void createNewTask(BuildContext context){
     BlocProvider.of<TaskCubit>(context).addNewTask(
     Task(
@@ -27,12 +33,14 @@ class EditTaskCubit extends Cubit<EditTaskState> {
       startDateTime: startDateTime,
       endDateTime: endTime,
       id: lastTaskId,
+      subtasks: List.from(subtasks),
     ));
     lastTaskId++;
   }
 
   void editTask(BuildContext context, Task task){
-    BlocProvider.of<TaskCubit>(context).editTask(Task(
+    BlocProvider.of<TaskCubit>(context).editTask(
+      Task(
       name: nameC.text,
       note: noteC.text,
       color: taskColor,
@@ -41,6 +49,7 @@ class EditTaskCubit extends Cubit<EditTaskState> {
       startDateTime: startDateTime,
       endDateTime: endTime,
       id: task.id,
+      subtasks: List.from(subtasks),
     ));
   }
 
@@ -107,6 +116,20 @@ class EditTaskCubit extends Cubit<EditTaskState> {
     emit(EditTaskReminderChanged());
   }
 
+  void addSubtask(){
+    subtasks.add(Subtask(id: lastSubtaskId, name: subtaskNameC.text));
+    lastSubtaskId++;
+    restoreSubtaskDefaults();
+    emit(EditTaskSubtasksChanged());
+  }
+
+void deleteSubtask(int subtaskID){
+    subtasks.removeWhere((element) => element.id == subtaskID,);
+    emit(EditTaskSubtasksChanged());
+  }
+
+  void restoreSubtaskDefaults() => subtaskNameC.text = '';
+
   void restoreDefaults() {
     nameC.text = '';
     noteC.text = '';
@@ -115,6 +138,7 @@ class EditTaskCubit extends Cubit<EditTaskState> {
     taskColor = Colors.red;
     repeated = 'none';
     reminder = 0;
+    subtasks.clear();
   }
 
   void setDataFromTask(Task task) {
@@ -125,5 +149,6 @@ class EditTaskCubit extends Cubit<EditTaskState> {
     taskColor = task.color;
     repeated = task.repeat;
     reminder = task.reminder;
+    subtasks = List.from(task.getSubtasks);
   }
 }

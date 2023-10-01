@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 
 import 'package:to_do/Cubits/task_cubit/task_cubit.dart';
 import 'package:to_do/Models/config.dart';
+import 'package:to_do/Widgets/subtask_widget.dart';
+import 'package:to_do/Widgets/task_info_Widget.dart';
 import '../Models/task.dart';
 
 @immutable
@@ -15,38 +17,30 @@ class TaskWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dismissible(
       key: Key('${task.id}'),
-      onDismissed: (direction) {
-        if (direction == DismissDirection.startToEnd)
-          Navigator.pushNamed(context, '/task_info', arguments: task);
-        else
-          BlocProvider.of<TaskCubit>(context).deleteTask(task.id);
-      },
+      onDismissed: (direction) => BlocProvider.of<TaskCubit>(context).deleteTask(task.id),
       direction: DismissDirection.horizontal,
-      background: SizedBox(
-        child: Icon(
-          Icons.edit_document,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
-      secondaryBackground: const SizedBox(
+      background: const SizedBox(
         child: Icon(
           Icons.delete,
           color: Colors.red,
         ),
       ),
-      child: (task.note == '') ? _normalTask() : _advancedTask(),
+      child: BlocBuilder<TaskCubit, TaskState>(
+        buildWhen: (previous, current) =>
+            current is TaskStatusUpdated && current.taskId == task.id,
+        builder: (context, state) => (task.getSubtasks.isEmpty)
+            ? _normalTask(context)
+            : _advancedTask(context),
+      ),
     );
   }
 
-  Checkbox _checkBox() => Checkbox(
+  Checkbox _checkBox(BuildContext context) => Checkbox(
         value: task.isFinished,
         onChanged: (value) {
-          // setState(() {
-          //   task.isFinished = !task.isFinished;
-          //   // BlocProvider.of<TaskCubit>(context)
-          //   //     .deleteTasks(task.id);
-          // });
+          BlocProvider.of<TaskCubit>(context).updateTaskStatus(task.id);
         },
+        checkColor: Colors.white,
         fillColor: MaterialStateProperty.all(Colors.transparent),
         side: const BorderSide(
             color: Colors.white, width: 1.5, style: BorderStyle.solid),
@@ -115,7 +109,7 @@ class TaskWidget extends StatelessWidget {
         ],
       );
 
-  ExpansionTile _advancedTask() => ExpansionTile(
+  ExpansionTile _advancedTask(BuildContext context) => ExpansionTile(
         title: Hero(
           tag: '${task.id}',
           child: Text(
@@ -126,14 +120,13 @@ class TaskWidget extends StatelessWidget {
           ),
         ),
         subtitle: _infoSection(),
-        leading: _checkBox(),
-        trailing:
-            (task.note != '') ? const Icon(Icons.notes) : const SizedBox(),
+        leading: _checkBox(context),
+        trailing: _moreInfoButton(context, task),
         iconColor: Colors.white,
         collapsedIconColor: Colors.white,
         backgroundColor: task.color,
-        // childrenPadding: const EdgeInsets.symmetric(horizontal: 2),
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        childrenPadding: const EdgeInsets.all(10),
         collapsedBackgroundColor: task.color,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -142,35 +135,51 @@ class TaskWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         children: [
-          Text(
-            '\n${task.note}',
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.start,
+          Divider(
+            color: Colors.white.withOpacity(0.75),
+            indent: SizeConfig.widthBlock * 8,
+            endIndent: 10,
+            thickness: 1,
           ),
-          SizedBox(height: SizeConfig.heightBlock * 3),
-          ...task.getSubtasks.map((e) => Container()).toList()
+          ...task.getSubtasks
+              .map((e) => SubtaskWidget(task: task, subtask: e))
+              .toList()
         ],
       );
 
-  ListTile _normalTask() => ListTile(
-        leading: _checkBox(),
-        title: Hero(
-          tag: '${task.id}',
-          child: Text(
-            task.name,
-            style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-            overflow: TextOverflow.ellipsis,
+  Container _normalTask(BuildContext context) => Container(
+    decoration: BoxDecoration(
+      color: task.color,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: ListTile(
+          leading: _checkBox(context),
+          title: Hero(
+            tag: '${task.id}',
+            child: Text(
+              task.name,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
+          trailing: _moreInfoButton(context, task),
+          subtitle: _infoSection(),
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: BorderRadius.circular(10),
+          // ),
         ),
-        subtitle: _infoSection(),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+  );
+
+  IconButton _moreInfoButton(BuildContext context, Task task) => IconButton(
+        onPressed: () => showModalBottomSheet(
+          context: context,
+          builder: (context) => TaskInfoWidget(task: task),
         ),
-        tileColor: task.color,
+        icon: const Icon(Icons.more_horiz_rounded),
+        style: IconButton.styleFrom(foregroundColor: Colors.white),
       );
 }

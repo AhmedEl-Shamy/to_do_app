@@ -5,7 +5,7 @@ import 'package:to_do/Cubits/theme_cubit/theme_cubit.dart';
 import 'package:to_do/Models/config.dart';
 import 'package:to_do/UI/add_task_page.dart';
 import 'package:to_do/UI/task_edit_page.dart';
-import 'package:to_do/UI/task_info_page.dart';
+import 'package:to_do/Widgets/task_info_Widget.dart';
 import 'Cubits/task_cubit/task_cubit.dart';
 import 'UI/home.dart';
 

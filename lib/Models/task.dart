@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class Task {
@@ -12,8 +11,7 @@ class Task {
   int reminder;
   bool isFinished = false;
   bool isOpened = true;
-  // List<Subtask> Subtasks = List.empty();
-  List<Subtask> Subtasks = [Subtask(id: 1, name: 'name')];
+  List<Subtask> subtasks;
   int subtaskId = 0;
   Task({
     required this.name,
@@ -24,27 +22,27 @@ class Task {
     this.color = Colors.redAccent,
     this.repeat = 'none',
     this.reminder = 0,
+    required this.subtasks,
   });
 
-  void addSubtask({required String name, required int id}) {
-    Subtasks.add(Subtask(id: id, name: name));
-    subtaskId++;
+  void deleteSubtask(Subtask subtask) {
+    subtasks.removeWhere((element) => element.id == subtask.id);
   }
 
-  void deleteSubtask(Subtask Subtask) {
-    Subtasks.removeWhere((element) => element.id ==  Subtask.id);
-  }
+  void finish() => isFinished = !isFinished;
 
-  List<Subtask> get getSubtasks => Subtasks;
+  List<Subtask> get getSubtasks => subtasks;
 }
 
-class Subtask{
+class Subtask {
   int id;
   String name;
   bool isFinished = false;
 
-  Subtask ({
+  Subtask({
     required this.id,
     required this.name,
   });
+
+  void finish() => isFinished = !isFinished;
 }

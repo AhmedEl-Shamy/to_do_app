@@ -10,10 +10,25 @@ class TaskCubit extends Cubit<TaskState> {
   TaskCubit() : super(TaskInitial());
   List<Task> tasks = List.empty(growable: true);
   String tasksOption = 'all';
-  
+  TextEditingController taskNameController = TextEditingController();
+  int counter = 50;
   void addNewTask(Task task) {
     tasks.add(task);
     emit(TaskUpdated());
+  }
+
+  void updateTaskStatus(int taskId) {
+    Task task = tasks.firstWhere((element) => element.id == taskId);
+    task.finish();
+    emit(TaskStatusUpdated(taskId: taskId));
+  }
+
+  void updateSubtaskStatus({required int taskId, required int subtaskId}) {
+    Task task = tasks.firstWhere((element) => element.id == taskId);
+    Subtask subtask =
+        task.getSubtasks.firstWhere((element) => element.id == subtaskId);
+    subtask.finish();
+    emit(SubtaskStatusUpdated(taskId: taskId, subtaskId: subtaskId));
   }
 
   int dateTimeCopmerable(DateTime date1, DateTime date2) {
@@ -49,5 +64,21 @@ class TaskCubit extends Cubit<TaskState> {
     tasks.insert(index, task);
     emit(TaskUpdated());
   }
-  
+
+  void addQuickTask() {
+    if (taskNameController.text != '') {
+      tasks.add(
+        Task(
+          name: taskNameController.text,
+          id: counter,
+          startDateTime: DateTime.now(),
+          endDateTime: null,
+          subtasks: List.empty(growable: true),
+        ),
+      );
+      taskNameController.text = '';
+      counter++;
+      emit(TaskUpdated());
+    }
+  }
 }

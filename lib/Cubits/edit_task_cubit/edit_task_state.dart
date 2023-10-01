@@ -8,3 +8,4 @@ final class EditTaskEndDateTimeChanged extends EditTaskState {}
 final class EditTaskColorChanged extends EditTaskState {}
 final class EditTaskRepeatedChanged extends EditTaskState {}
 final class EditTaskReminderChanged extends EditTaskState {}
+final class EditTaskSubtasksChanged extends EditTaskState {}

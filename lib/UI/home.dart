@@ -32,8 +32,10 @@ class HomePage extends StatelessWidget {
                 return Column(
                   children: [
                     AppBar(
+                      primary: true,
                       foregroundColor: Theme.of(context).colorScheme.primary,
-                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -46,8 +48,8 @@ class HomePage extends StatelessWidget {
                       ),
                       actions: [
                         IconButton(
-                          onPressed: BlocProvider.of<ThemeCubit>(context)
-                              .changeTheme,
+                          onPressed:
+                              BlocProvider.of<ThemeCubit>(context).changeTheme,
                           icon: (!BlocProvider.of<ThemeCubit>(context).isDark)
                               ? const Icon(Icons.dark_mode_sharp)
                               : const Icon(Icons.light_mode_sharp),
@@ -80,9 +82,54 @@ class HomePage extends StatelessWidget {
                           child: Text('Custom'),
                         ),
                       ],
-                      onChanged: (value) =>
-                          BlocProvider.of<TaskCubit>(context)
-                              .changeTaskOption(value, context),
+                      onChanged: (value) => BlocProvider.of<TaskCubit>(context)
+                          .changeTaskOption(value, context),
+                    ),
+                    SizedBox(
+                      height: SizeConfig.heightBlock * 2,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: BlocProvider.of<TaskCubit>(context)
+                                .taskNameController,
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                              hintText: 'Create Quick Task',
+                              isDense: true,
+                              contentPadding: const EdgeInsets.all(8),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: SizeConfig.widthBlock * 2,
+                        ),
+                        FilledButton(
+                          onPressed: BlocProvider.of<TaskCubit>(context).addQuickTask,
+                          style: FilledButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            // padding: const EdgeInsets.all(10),
+                            visualDensity: VisualDensity.compact
+                          ),
+                          child: const Icon(Icons.add),
+                        )
+                      ],
                     ),
                     SizedBox(
                       height: SizeConfig.heightBlock * 2,
