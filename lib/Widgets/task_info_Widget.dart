@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import 'package:to_do/Cubits/edit_task_cubit/edit_task_cubit.dart';
-// import 'package:to_do/Cubits/theme_cubit/theme_cubit.dart';
 import 'package:to_do/Models/config.dart';
 import 'package:to_do/Models/task.dart';
 
@@ -12,43 +11,43 @@ class TaskInfoWidget extends StatelessWidget {
   final Task task;
   @override
   Widget build(BuildContext context) {
-    BlocProvider.of<EditTaskCubit>(context).setDataFromTask(task);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+              task.name,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+            ),
+          ),
+          Divider(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            thickness: 1,
+            indent: SizeConfig.widthBlock * 5,
+            endIndent: SizeConfig.widthBlock * 5,
+          ),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      task.name,
-                      // textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.w500),
+                  Text(
+                    task.description,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
                     ),
                   ),
-                  Divider(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    thickness: 1,
-                    indent: SizeConfig.widthBlock * 5,
-                    endIndent: SizeConfig.widthBlock * 5,
+                  if(task.description != '' || task.description != ' ') SizedBox(
+                    height: SizeConfig.heightBlock * 3,
                   ),
                   _addInfo(
                     type: 'Start Date',
-                    value:
-                        '\t${DateFormat('d/M/y').format(task.startDateTime)}',
-                    context: context,
-                  ),
-                  SizedBox(height: SizeConfig.heightBlock * 2),
-                  _addInfo(
-                    type: 'End Date',
-                    value: (task.endDateTime != null)
-                        ? '\t${DateFormat('d/M/y').format(task.endDateTime!)}'
+                    value: (task.startDateTime != null)
+                        ? '\t${DateFormat('d/M/y').format(task.startDateTime!)}'
                         : '\tNone',
                     context: context,
                   ),
@@ -57,17 +56,11 @@ class TaskInfoWidget extends StatelessWidget {
                   ),
                   _addInfo(
                       type: 'Start Time',
-                      value:
-                          '\t${DateFormat('h:m a').format(task.startDateTime)}',
-                      context: context),
-                  SizedBox(height: SizeConfig.heightBlock * 2),
-                  _addInfo(
-                      type: 'End Time',
-                      value: (task.endDateTime != null)
-                          ? '\t${DateFormat('h:m a').format(task.endDateTime!)}'
+                      value: (task.startDateTime != null)
+                          ? '\t${DateFormat('hh:mm a').format(task.startDateTime!)}'
                           : '\tNone',
                       context: context),
-                  SizedBox(height: SizeConfig.heightBlock * 3),
+                  SizedBox(height: SizeConfig.heightBlock * 2),
                   _addInfo(
                       type: 'Repeat',
                       value: (task.repeat != 'none')
@@ -105,10 +98,11 @@ class TaskInfoWidget extends StatelessWidget {
                   SizedBox(
                     height: SizeConfig.heightBlock * 3,
                   ),
-                  _subTasks(context, task),
-                  SizedBox(
-                    height: SizeConfig.heightBlock * 3,
-                  ),
+                  if (task.getSubtasks.isNotEmpty) _subTasks(context, task),
+                  if (task.getSubtasks.isNotEmpty)
+                    SizedBox(
+                      height: SizeConfig.heightBlock * 3,
+                    ),
                 ],
               ),
             ),
@@ -119,7 +113,12 @@ class TaskInfoWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 FilledButton(
-                  onPressed:() => Navigator.of(context).pushNamed('/task_edit', arguments: task),
+                  onPressed: () {
+                    BlocProvider.of<EditTaskCubit>(context)
+                        .setDataFromTask(task);
+                    Navigator.of(context)
+                        .pushNamed('/task_edit', arguments: task);
+                  },
                   child: Row(
                     children: [
                       const Text('Edit'),

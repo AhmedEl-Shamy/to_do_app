@@ -24,13 +24,15 @@ class AddTaskWidget extends StatelessWidget {
           controller: BlocProvider.of<EditTaskCubit>(context).nameC,
           context: context,
           lines: 1,
+          hasMultilineInput: false,
         ),
         SizedBox(height: SizeConfig.heightBlock * 2),
         _addTaskTextField(
-          label: 'Note',
+          label: 'Description',
           controller: BlocProvider.of<EditTaskCubit>(context).noteC,
           context: context,
-          lines: 3,
+          lines: 4,
+          hasMultilineInput: true,
         ),
         SizedBox(height: SizeConfig.heightBlock * 2),
         BlocBuilder<EditTaskCubit, EditTaskState>(
@@ -39,72 +41,89 @@ class AddTaskWidget extends StatelessWidget {
           builder: (context, state) {
             return _pickerButton(
               type: 'Date',
-              str: DateFormat('d/M/y').format(
-                  BlocProvider.of<EditTaskCubit>(context).startDateTime),
+              str: (BlocProvider.of<EditTaskCubit>(context).startDateTime !=
+                      null)
+                  ? DateFormat('d/M/y').format(
+                      BlocProvider.of<EditTaskCubit>(context).startDateTime!)
+                  : 'None',
               context: context,
             );
           },
         ),
         SizedBox(height: SizeConfig.heightBlock * 2),
+        // BlocBuilder<EditTaskCubit, EditTaskState>(
+        //   buildWhen: (previous, current) =>
+        //       current is EditTaskEndDateTimeChanged,
+        //   builder: (context, state) {
+        //     return _pickerButton(
+        //       type: 'End Date',
+        //       str: (BlocProvider.of<EditTaskCubit>(context).endDateTime == null)
+        //           ? 'None'
+        //           : DateFormat('d/M/y').format(
+        //               BlocProvider.of<EditTaskCubit>(context).endDateTime!),
+        //       context: context,
+        //     );
+        //   },
+        // ),
+        // SizedBox(height: SizeConfig.heightBlock * 2),
         BlocBuilder<EditTaskCubit, EditTaskState>(
           buildWhen: (previous, current) =>
-              current is EditTaskEndDateTimeChanged,
+              current is EditTaskStartDateTimeChanged,
           builder: (context, state) {
             return _pickerButton(
-              type: 'End Date',
-              str: (BlocProvider.of<EditTaskCubit>(context).endTime == null)
-                  ? 'None'
-                  : DateFormat('d/M/y')
-                      .format(BlocProvider.of<EditTaskCubit>(context).endTime!),
+              type: 'Start Time',
+              str: (BlocProvider.of<EditTaskCubit>(context).startDateTime !=
+                      null)
+                  ? DateFormat('hh:mm a').format(
+                      BlocProvider.of<EditTaskCubit>(context).startDateTime!)
+                  : 'None',
               context: context,
             );
           },
         ),
-        SizedBox(height: SizeConfig.heightBlock * 2),
-        Row(
-          children: [
-            Expanded(
-              child: BlocBuilder<EditTaskCubit, EditTaskState>(
-                buildWhen: (previous, current) =>
-                    current is EditTaskStartDateTimeChanged,
-                builder: (context, state) {
-                  return _pickerButton(
-                    type: 'Start Time',
-                    str: DateFormat('h:m a').format(
-                        BlocProvider.of<EditTaskCubit>(context).startDateTime),
-                    context: context,
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: BlocBuilder<EditTaskCubit, EditTaskState>(
-                buildWhen: (previous, current) =>
-                    current is EditTaskEndDateTimeChanged,
-                builder: (context, state) {
-                  return _pickerButton(
-                    type: 'End Time',
-                    str: (BlocProvider.of<EditTaskCubit>(context).endTime ==
-                            null)
-                        ? 'None'
-                        : DateFormat('h:m a').format(
-                            BlocProvider.of<EditTaskCubit>(context).endTime!,
-                          ),
-                    context: context,
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: SizeConfig.heightBlock * 2),
-        BlocBuilder<EditTaskCubit, EditTaskState>(
-          buildWhen: (previous, current) => current is EditTaskSubtasksChanged,
-          builder: (context, state) {
-            return _addSubtasksSection(context);
-          },
-        ),
+        // Row(
+        //   children: [
+        //     Expanded(
+        //       child: BlocBuilder<EditTaskCubit, EditTaskState>(
+        //         buildWhen: (previous, current) =>
+        //             current is EditTaskStartDateTimeChanged,
+        //         builder: (context, state) {
+        //           return _pickerButton(
+        //             type: 'Start Time',
+        //             str: (BlocProvider.of<EditTaskCubit>(context)
+        //                         .startDateTime !=
+        //                     null)
+        //                 ? DateFormat('hh:mm a').format(
+        //                     BlocProvider.of<EditTaskCubit>(context)
+        //                         .startDateTime!)
+        //                 : 'None',
+        //             context: context,
+        //           );
+        //         },
+        //       ),
+        //     ),
+        //     const SizedBox(width: 10),
+        //     Expanded(
+        //       child: BlocBuilder<EditTaskCubit, EditTaskState>(
+        //         buildWhen: (previous, current) =>
+        //             current is EditTaskEndDateTimeChanged,
+        //         builder: (context, state) {
+        //           return _pickerButton(
+        //             type: 'End Time',
+        //             str: (BlocProvider.of<EditTaskCubit>(context).endDateTime ==
+        //                     null)
+        //                 ? 'None'
+        //                 : DateFormat('hh:mm a').format(
+        //                     BlocProvider.of<EditTaskCubit>(context)
+        //                         .endDateTime!,
+        //                   ),
+        //             context: context,
+        //           );
+        //         },
+        //       ),
+        //     ),
+        //   ],
+        // ),
         SizedBox(height: SizeConfig.heightBlock * 2),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,23 +136,9 @@ class AddTaskWidget extends StatelessWidget {
               padding: EdgeInsets.zero,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                border: BorderDirectional(
-                  start: BorderSide(
-                    width: 0.5,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  end: BorderSide(
-                    width: 0.5,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  bottom: BorderSide(
-                    width: 0.5,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  top: BorderSide(
-                    width: 0.5,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
+                border: Border.all(
+                  width: 0.5,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               child: BlocBuilder<EditTaskCubit, EditTaskState>(
@@ -193,26 +198,11 @@ class AddTaskWidget extends StatelessWidget {
             Container(
               padding: EdgeInsets.zero,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: BorderDirectional(
-                  start: BorderSide(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
                     width: 0.5,
                     color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  end: BorderSide(
-                    width: 0.5,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  bottom: BorderSide(
-                    width: 0.5,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  top: BorderSide(
-                    width: 0.5,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
-              ),
+                  )),
               child: BlocBuilder<EditTaskCubit, EditTaskState>(
                 buildWhen: (previous, current) =>
                     current is EditTaskReminderChanged,
@@ -286,9 +276,16 @@ class AddTaskWidget extends StatelessWidget {
                   )
                   .toList(),
             ),
-            SizedBox(height: SizeConfig.heightBlock * 2),
           ],
         ),
+        SizedBox(height: SizeConfig.heightBlock * 2),
+        BlocBuilder<EditTaskCubit, EditTaskState>(
+          buildWhen: (previous, current) => current is EditTaskSubtasksChanged,
+          builder: (context, state) {
+            return _addSubtasksSection(context);
+          },
+        ),
+        SizedBox(height: SizeConfig.heightBlock * 2),
       ],
     );
   }
@@ -298,13 +295,15 @@ class AddTaskWidget extends StatelessWidget {
     required TextEditingController controller,
     required BuildContext context,
     required int lines,
+    required bool hasMultilineInput,
   }) =>
       TextField(
         controller: controller,
         maxLines: lines,
-        keyboardType: TextInputType.text,
+        keyboardType:
+            (hasMultilineInput) ? TextInputType.multiline : TextInputType.text,
         decoration: InputDecoration(
-          labelText: label,
+          labelText: (hasMultilineInput) ? null : label,
           hintText: 'Enter Task $label',
           contentPadding: const EdgeInsets.all(8),
           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
@@ -339,83 +338,7 @@ class AddTaskWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () {
-              if (type == 'Date') {
-                showDatePicker(
-                  helpText: 'Select Date',
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime.now().add(
-                    const Duration(days: 365 * 2),
-                  ),
-                ).then((value) =>
-                    BlocProvider.of<EditTaskCubit>(context).changeDate(value));
-              } else if (type == 'End Date') {
-                showDatePicker(
-                  helpText: 'Select End Date',
-                  context: context,
-                  initialDate:
-                      BlocProvider.of<EditTaskCubit>(context).startDateTime,
-                  firstDate:
-                      BlocProvider.of<EditTaskCubit>(context).startDateTime,
-                  lastDate: DateTime.now().add(
-                    const Duration(days: 365 * 2),
-                  ),
-                ).then((value) {
-                  if (value != null) {
-                    BlocProvider.of<EditTaskCubit>(context)
-                        .changeEndDate(value);
-                  }
-                });
-              } else {
-                showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now(),
-                        helpText: 'Select $type')
-                    .then((value) {
-                  if (type == 'Start Time') {
-                    DateTime startTime = DateTime(
-                      BlocProvider.of<EditTaskCubit>(context)
-                          .startDateTime
-                          .year,
-                      BlocProvider.of<EditTaskCubit>(context)
-                          .startDateTime
-                          .month,
-                      BlocProvider.of<EditTaskCubit>(context).startDateTime.day,
-                      value == null
-                          ? BlocProvider.of<EditTaskCubit>(context)
-                              .startDateTime
-                              .hour
-                          : value.hour,
-                      value == null
-                          ? BlocProvider.of<EditTaskCubit>(context)
-                              .startDateTime
-                              .minute
-                          : value.minute,
-                      BlocProvider.of<EditTaskCubit>(context)
-                          .startDateTime
-                          .second,
-                    );
-                    BlocProvider.of<EditTaskCubit>(context)
-                        .changeStartTime(startTime);
-                  } else {
-                    if (value != null) {
-                      DateTime endTime = DateTime(
-                        DateTime.now().year,
-                        DateTime.now().month,
-                        DateTime.now().day,
-                        value.hour,
-                        value.minute,
-                        DateTime.now().second,
-                      );
-                      BlocProvider.of<EditTaskCubit>(context)
-                          .changeEndTime(endTime);
-                    }
-                  }
-                });
-              }
-            },
+            onPressed: getMethod(type, context),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -429,10 +352,94 @@ class AddTaskWidget extends StatelessWidget {
         ],
       );
 
+  void Function()? getMethod(String type, BuildContext context) {
+    if (type == 'Date') {
+      return () {
+        showDatePicker(
+          helpText: 'Select Date',
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime.now(),
+          lastDate: DateTime.now().add(
+            const Duration(days: 365 * 2),
+          ),
+        ).then((value) =>
+            BlocProvider.of<EditTaskCubit>(context).changeDate(value));
+      };
+    }
+    // else if (type == 'End Date' &&
+    //     BlocProvider.of<EditTaskCubit>(context).startDateTime != null) {
+    //   return () {
+    //     showDatePicker(
+    //       helpText: 'Select End Date',
+    //       context: context,
+    //       initialDate: BlocProvider.of<EditTaskCubit>(context).startDateTime!,
+    //       firstDate: BlocProvider.of<EditTaskCubit>(context).startDateTime!,
+    //       lastDate: DateTime.now().add(
+    //         const Duration(days: 365 * 2),
+    //       ),
+    //     ).then((value) {
+    //       if (value != null) {
+    //         BlocProvider.of<EditTaskCubit>(context).changeEndDate(value);
+    //       }
+    //     });
+    //   };
+    // }
+    else if (type == 'Start Time') {
+      return () {
+        showTimePicker(
+                context: context,
+                initialTime: (BlocProvider.of<EditTaskCubit>(context)
+                            .startDateTime !=
+                        null)
+                    ? TimeOfDay.fromDateTime(
+                        BlocProvider.of<EditTaskCubit>(context).startDateTime!)
+                    : TimeOfDay.now(),
+                helpText: 'Select $type')
+            .then(
+          (value) {
+            if (value != null) {
+              BlocProvider.of<EditTaskCubit>(context).changeStartTime(value);
+            }
+          },
+        );
+      };
+    }
+    // else if (type == 'End Time' &&
+    //     BlocProvider.of<EditTaskCubit>(context).startDateTime != null) {
+    //   return () {
+    //     showTimePicker(
+    //             context: context,
+    //             initialTime: (BlocProvider.of<EditTaskCubit>(context)
+    //                         .endDateTime !=
+    //                     null)
+    //                 ? TimeOfDay.fromDateTime(
+    //                     BlocProvider.of<EditTaskCubit>(context).endDateTime!)
+    //                 : TimeOfDay.fromDateTime(
+    //                     BlocProvider.of<EditTaskCubit>(context)
+    //                         .startDateTime!
+    //                         .add(const Duration(hours: 1)),
+    //                   ),
+    //             helpText: 'Select $type')
+    //         .then(
+    //       (value) {
+    //         if (value != null) {
+    //           BlocProvider.of<EditTaskCubit>(context).changeEndTime(value);
+    //         }
+    //       },
+    //     );
+    //   };
+    // }
+    else
+      return null;
+  }
+
   Widget _addSubtaskWidget(BuildContext context) => Row(
         children: [
           Expanded(
             child: TextField(
+              key: BlocProvider.of<EditTaskCubit>(context).textFieldKey,
+              focusNode: BlocProvider.of<EditTaskCubit>(context).focusNode,
               controller: BlocProvider.of<EditTaskCubit>(context).subtaskNameC,
               keyboardType: TextInputType.text,
               decoration: InputDecoration(

@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 class Task {
   int id;
   String name;
-  String note;
+  String description;
   Color color;
   String repeat;
-  DateTime startDateTime;
-  DateTime? endDateTime;
+  DateTime? startDateTime;
+  // DateTime? endDateTime;
   int reminder;
   bool isFinished = false;
   bool isOpened = true;
@@ -15,11 +15,11 @@ class Task {
   int subtaskId = 0;
   Task({
     required this.name,
-    required this.startDateTime,
-    required this.endDateTime,
+    this.startDateTime,
+    // this.endDateTime,
     this.id = 0,
-    this.note = '',
-    this.color = Colors.redAccent,
+    this.description = '',
+    this.color = Colors.red,
     this.repeat = 'none',
     this.reminder = 0,
     required this.subtasks,

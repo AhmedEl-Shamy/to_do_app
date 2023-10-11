@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:to_do/Cubits/task_cubit/task_cubit.dart';
 import 'package:to_do/Models/config.dart';
 import 'package:to_do/Widgets/subtask_widget.dart';
-import 'package:to_do/Widgets/task_info_Widget.dart';
+import 'package:to_do/Widgets/task_info_widget.dart';
 import '../Models/task.dart';
 
 @immutable
@@ -17,7 +17,8 @@ class TaskWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dismissible(
       key: Key('${task.id}'),
-      onDismissed: (direction) => BlocProvider.of<TaskCubit>(context).deleteTask(task.id),
+      onDismissed: (direction) =>
+          BlocProvider.of<TaskCubit>(context).deleteTask(task.id),
       direction: DismissDirection.horizontal,
       background: const SizedBox(
         child: Icon(
@@ -54,29 +55,24 @@ class TaskWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.access_time,
-                color: Colors.white,
-                size: 16,
-              ),
-              SizedBox(
-                width: SizeConfig.widthBlock,
-              ),
-              if (task.endDateTime == null)
+          if (task.startDateTime != null)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.access_time,
+                  color: Colors.white,
+                  size: 16,
+                ),
+                SizedBox(
+                  width: SizeConfig.widthBlock,
+                ),
                 Text(
-                  DateFormat('h:m a').format(task.startDateTime),
+                  DateFormat('hh:mm a').format(task.startDateTime!),
                   style: const TextStyle(color: Colors.white),
                 )
-              else
-                Text(
-                  '${DateFormat('h:m a').format(task.startDateTime)} : ${DateFormat('h:m a').format(task.endDateTime!)}',
-                  style: const TextStyle(color: Colors.white),
-                ),
-            ],
-          ),
+              ],
+            ),
           SizedBox(
             width: SizeConfig.widthBlock * 4,
           ),
@@ -109,50 +105,56 @@ class TaskWidget extends StatelessWidget {
         ],
       );
 
-  ExpansionTile _advancedTask(BuildContext context) => ExpansionTile(
-        title: Hero(
-          tag: '${task.id}',
-          child: Text(
-            task.name,
-            style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        subtitle: _infoSection(),
-        leading: _checkBox(context),
-        trailing: _moreInfoButton(context, task),
-        iconColor: Colors.white,
-        collapsedIconColor: Colors.white,
-        backgroundColor: task.color,
-        expandedCrossAxisAlignment: CrossAxisAlignment.start,
-        childrenPadding: const EdgeInsets.all(10),
-        collapsedBackgroundColor: task.color,
-        shape: RoundedRectangleBorder(
+  Container _advancedTask(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          color: task.color,
           borderRadius: BorderRadius.circular(10),
         ),
-        collapsedShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        children: [
-          Divider(
-            color: Colors.white.withOpacity(0.75),
-            indent: SizeConfig.widthBlock * 8,
-            endIndent: 10,
-            thickness: 1,
+        child: ExpansionTile(
+          title: Hero(
+            tag: '${task.id}',
+            child: Text(
+              task.name,
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          ...task.getSubtasks
-              .map((e) => SubtaskWidget(task: task, subtask: e))
-              .toList()
-        ],
+          subtitle: _infoSection(),
+          leading: _checkBox(context),
+          trailing: _moreInfoButton(context, task.id),
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white,
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          childrenPadding: const EdgeInsets.all(10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          collapsedShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          children: [
+            Divider(
+              color: Colors.white.withOpacity(0.75),
+              indent: SizeConfig.widthBlock * 8,
+              endIndent: 10,
+              thickness: 1,
+            ),
+            ...task.getSubtasks
+                .map((e) => SubtaskWidget(task: task, subtask: e))
+                .toList()
+          ],
+        ),
       );
 
   Container _normalTask(BuildContext context) => Container(
-    decoration: BoxDecoration(
-      color: task.color,
-      borderRadius: BorderRadius.circular(10),
-    ),
-    child: ListTile(
+        decoration: BoxDecoration(
+          color: task.color,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: ListTile(
           leading: _checkBox(context),
           title: Hero(
             tag: '${task.id}',
@@ -166,15 +168,25 @@ class TaskWidget extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          trailing: _moreInfoButton(context, task),
+          trailing: _moreInfoButton(context, task.id),
           subtitle: _infoSection(),
         ),
-  );
+      );
 
-  IconButton _moreInfoButton(BuildContext context, Task task) => IconButton(
+  IconButton _moreInfoButton(BuildContext context, int taskId) => IconButton(
         onPressed: () => showModalBottomSheet(
           context: context,
-          builder: (context) => TaskInfoWidget(task: task),
+          builder: (context) {
+            return BlocBuilder<TaskCubit, TaskState>(
+              buildWhen: (previous, current) => current is TaskUpdated,
+              builder: (context, state) {
+                Task task = BlocProvider.of<TaskCubit>(context)
+                    .tasks
+                    .firstWhere((element) => element.id == taskId);
+                return TaskInfoWidget(task: task);
+              },
+            );
+          },
         ),
         icon: const Icon(Icons.more_horiz_rounded),
         style: IconButton.styleFrom(foregroundColor: Colors.white),

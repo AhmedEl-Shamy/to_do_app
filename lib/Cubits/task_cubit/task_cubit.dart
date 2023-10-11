@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:to_do/Models/task.dart';
 // import 'package:intl/intl.dart';
 // import 'package:to_do/Models/config.dart';
@@ -10,8 +11,35 @@ class TaskCubit extends Cubit<TaskState> {
   TaskCubit() : super(TaskInitial());
   List<Task> tasks = List.empty(growable: true);
   String tasksOption = 'all';
+  DateTime? customFilteredDate;
   TextEditingController taskNameController = TextEditingController();
   int counter = 50;
+
+  void getTasks() {}
+
+  List<Task> getFilteredTasks() {
+    if (tasksOption == 'today') {
+      return tasks
+          .where((element) => (element.startDateTime != null) &&
+              (DateFormat.yMd().format(element.startDateTime!) == DateFormat.yMd().format(DateTime.now())) ||
+              (element.repeat == 'daily' && element.startDateTime!.compareTo(DateTime.now()) == 0) ||
+              ((element.repeat == 'weekly' && element.startDateTime!.difference(DateTime.now()).inDays % 7 == 0)) ||
+              ((element.repeat == 'monthly' && element.startDateTime!.day == DateTime.now().day)))
+          .toList();
+    } else if (tasksOption == 'custom' && customFilteredDate != null) {
+      return tasks
+      .where((element) => (element.startDateTime != null) &&
+              (DateFormat.yMd().format(element.startDateTime!) == DateFormat.yMd().format(customFilteredDate!)) ||
+              (element.repeat == 'daily') ||
+              ((element.repeat == 'weekly' && element.startDateTime!.difference(customFilteredDate!).inDays % 7 == 0)) ||
+              ((element.repeat == 'monthly' && element.startDateTime!.day == customFilteredDate!.day)))
+          .toList();
+    } else if (tasksOption == 'none') {
+      return tasks.where((element) => element.startDateTime == null).toList();
+    } else
+      return tasks;
+  }
+
   void addNewTask(Task task) {
     tasks.add(task);
     emit(TaskUpdated());
@@ -48,9 +76,20 @@ class TaskCubit extends Cubit<TaskState> {
       return 0;
   }
 
-  void changeTaskOption(String? value, BuildContext context) {
+  // void updateRepeatedTask(Task task){
+  //   if (task.repeat == 'daily' && DateTime.now().day != task.startDateTime!.day){
+  //     task.startDateTime = task.startDateTime!.add(const Duration(days: 1));
+  //   }
+  //   else if(task.repeat == 'monthly' && DateTime.now().month - task.startDateTime!.month == 1%30){
+
+  //   }
+  // }
+
+  void changeTaskOption(String? value, BuildContext context, DateTime? customDate) {
+    customFilteredDate = customDate;
     tasksOption = value!;
     emit(TasksOptionChanged());
+    emit(TaskUpdated());
   }
 
   void deleteTask(int taskId) {
@@ -71,8 +110,7 @@ class TaskCubit extends Cubit<TaskState> {
         Task(
           name: taskNameController.text,
           id: counter,
-          startDateTime: DateTime.now(),
-          endDateTime: null,
+          // endDateTime: null,
           subtasks: List.empty(growable: true),
         ),
       );
