@@ -15,10 +15,10 @@ class TaskWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // if (task.startDateTime != null) NotificationService.pushScheduleNotification(task: task);
     return Dismissible(
       key: Key('${task.id}'),
-      onDismissed: (direction) =>
-          BlocProvider.of<TaskCubit>(context).deleteTask(task.id),
+      onDismissed: (direction) => BlocProvider.of<TaskCubit>(context).deleteTask(task.id),
       direction: DismissDirection.horizontal,
       background: const SizedBox(
         child: Icon(
@@ -27,11 +27,8 @@ class TaskWidget extends StatelessWidget {
         ),
       ),
       child: BlocBuilder<TaskCubit, TaskState>(
-        buildWhen: (previous, current) =>
-            current is TaskStatusUpdated && current.taskId == task.id,
-        builder: (context, state) => (task.getSubtasks.isEmpty)
-            ? _normalTask(context)
-            : _advancedTask(context),
+        buildWhen: (previous, current) => current is TaskStatusUpdated && current.taskId == task.id,
+        builder: (context, state) => (task.getSubtasks.isEmpty) ? _normalTask(context) : _advancedTask(context),
       ),
     );
   }
@@ -43,12 +40,9 @@ class TaskWidget extends StatelessWidget {
         },
         checkColor: Colors.white,
         fillColor: MaterialStateProperty.all(Colors.transparent),
-        side: const BorderSide(
-            color: Colors.white, width: 1.5, style: BorderStyle.solid),
+        side: const BorderSide(color: Colors.white, width: 1.5, style: BorderStyle.solid),
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: const BorderSide(
-                color: Colors.white, width: 1, style: BorderStyle.solid)),
+            borderRadius: BorderRadius.circular(10), side: const BorderSide(color: Colors.white, width: 1, style: BorderStyle.solid)),
       );
 
   Row _infoSection() => Row(
@@ -115,10 +109,7 @@ class TaskWidget extends StatelessWidget {
             tag: '${task.id}',
             child: Text(
               task.name,
-              style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -142,9 +133,7 @@ class TaskWidget extends StatelessWidget {
               endIndent: 10,
               thickness: 1,
             ),
-            ...task.getSubtasks
-                .map((e) => SubtaskWidget(task: task, subtask: e))
-                .toList()
+            ...task.getSubtasks.map((e) => SubtaskWidget(task: task, subtask: e)).toList()
           ],
         ),
       );
@@ -180,9 +169,7 @@ class TaskWidget extends StatelessWidget {
             return BlocBuilder<TaskCubit, TaskState>(
               buildWhen: (previous, current) => current is TaskUpdated,
               builder: (context, state) {
-                Task task = BlocProvider.of<TaskCubit>(context)
-                    .tasks
-                    .firstWhere((element) => element.id == taskId);
+                Task task = BlocProvider.of<TaskCubit>(context).tasks.firstWhere((element) => element.id == taskId);
                 return TaskInfoWidget(task: task);
               },
             );

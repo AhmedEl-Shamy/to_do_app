@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do/Cubits/task_cubit/task_cubit.dart';
 import 'package:to_do/Models/task.dart';
-
+import 'package:to_do/Models/notification_service.dart';
 part 'edit_task_state.dart';
 
 class EditTaskCubit extends Cubit<EditTaskState> {
@@ -14,13 +14,14 @@ class EditTaskCubit extends Cubit<EditTaskState> {
   String repeated = 'none';
   int reminder = 0;
   int lastTaskId = 0; //Until finishing the db
-
   List<Subtask> subtasks = List<Subtask>.empty(growable: true);
   TextEditingController subtaskNameC = TextEditingController();
   int lastSubtaskId = 0;
 
   FocusNode focusNode = FocusNode();
   GlobalKey textFieldKey = GlobalKey();
+
+  // NotificationService notificationService = NotificationService();
 
   void createNewTask(BuildContext context) {
     BlocProvider.of<TaskCubit>(context).addNewTask(Task(
